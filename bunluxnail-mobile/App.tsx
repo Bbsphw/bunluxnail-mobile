@@ -1,22 +1,11 @@
-// import { SafeAreaView } from "react-native";
-
-// export default function App() {
-//   return (
-//     <SafeAreaView style={{ flex: 1 }}>
-//       {/* content */}
-//     </SafeAreaView>
-//   );
-// }
-
-// App.tsx
-import './global.css'; // ต้องมีไฟล์นี้สำหรับ NativeWind (tailwind)
+import './global.css'; // Required for NativeWind (tailwind)
 import * as React from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { PaperProvider, Button, Text } from 'react-native-paper';
 
-// (ถ้าอยากกำหนดธีม paper เพิ่มเติมก็ทำได้แบบนี้)
+// (If you want to customize the Paper theme, you can do it like this)
 // const theme = {
 //   ...MD3LightTheme,
 //   colors: { ...MD3LightTheme.colors, primary: "#7c3aed" },
@@ -25,9 +14,9 @@ import { PaperProvider, Button, Text } from 'react-native-paper';
 export default function App() {
   return (
     <SafeAreaProvider>
-      {/* ใช้ PaperProvider ครอบทั้งแอป */}
+      {/* Use PaperProvider to wrap the entire app */}
       <PaperProvider /* theme={theme} */>
-        {/* ใช้ SafeAreaView จาก react-native-safe-area-context */}
+        {/* Use SafeAreaView from react-native-safe-area-context */}
         <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
           <StatusBar style="auto" />
           <View className="flex-1 items-center justify-center bg-white px-6 dark:bg-black">

@@ -2,12 +2,12 @@
 // It is safe to delete this file as it does not affect the functionality of your application.
 {
   "cesVersion": "2.18.10",
-  "projectName": "my-expo-app",
+  "projectName": "bunluxnail-mobile",
   "packages": [
     {
       "name": "nativewind",
-      "type": "styling"
-    }
+      "type": "styling",
+    },
   ],
   "flags": {
     "noGit": false,
@@ -16,16 +16,16 @@
     "importAlias": true,
     "packageManager": "npm",
     "eas": false,
-    "publish": false
+    "publish": false,
   },
   "packageManager": {
     "type": "npm",
-    "version": "11.6.0"
+    "version": "11.6.0",
   },
   "os": {
     "type": "Darwin",
     "platform": "darwin",
     "arch": "x64",
-    "kernelVersion": "21.6.0"
-  }
+    "kernelVersion": "21.6.0",
+  },
 }
