@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import './global.css'
+import '../global.css'
 
 export default function Profile() {
     return (
