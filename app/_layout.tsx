@@ -1,13 +1,13 @@
-import { Stack } from "expo-router";
-import { Tabs } from "expo-router";
+// app/_layout.tsx
 
-export default function RootLayout() {
+import * as React from 'react';
+import { Stack } from 'expo-router';
+import { AppProvider } from '@/providers/app-provider';
+
+export default function RootLayout(): React.JSX.Element {
   return (
-      <Tabs>
-        <Tabs.Screen name="index" options={{ title: "Home" }} />
-        <Tabs.Screen name="booking" options={{ title: "Booking" }} />
-        <Tabs.Screen name="chat" options={{ title: "Chat" }} />
-        <Tabs.Screen name="profile" options={{ title: "Profile" }} />
-      </Tabs>
+    <AppProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </AppProvider>
   );
 }
