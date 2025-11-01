@@ -1,12 +1,38 @@
-import { Text, View } from "react-native";
-import './global.css'
+// app/index.tsx
+
+import * as React from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { useRouter, useSegments } from 'expo-router';
+import { useAuth } from '@/providers/auth-provider';
 
 export default function Index() {
-  return (
-      <View className="flex-1 items-center justify-center bg-white">
-          <Text className="text-2xl font-bold text-blue-500">
-              Welcome to Nativewind!
-          </Text>
-      </View>
-  );
+  const router = useRouter();
+  const segments = useSegments();
+  const { loading, isAuthenticated } = useAuth();
+
+  // ระหว่างโหลด แสดง splash เล็ก ๆ กันกะพริบ/วิ่งลูป
+  React.useEffect(() => {
+    if (loading) return;
+    // ป้องกัน redirect เดิมซ้ำ: เช็ค segment ปัจจุบัน
+    const inAuth = segments[0] === '(auth)';
+    const inMain = segments[0] === '(main)';
+    if (isAuthenticated && !inMain) {
+      console.log("Authorize")
+      router.replace('/(main)/(tabs)');
+    } else if (!isAuthenticated && !inAuth) {
+      console.log("Not Authorize")
+      router.replace('/(auth)/sign-in');
+    }
+  }, [loading, isAuthenticated, segments, router]);
+
+  if (loading) {
+    return (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator />
+        </View>
+    );
+  }
+
+  // ค้างไว้เฉย ๆ ให้ effect ทำงาน
+  return <View style={{ flex: 1 }} />;
 }

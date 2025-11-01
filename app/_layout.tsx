@@ -1,13 +1,19 @@
-import { Stack } from "expo-router";
-import { Tabs } from "expo-router";
+// app/_layout.tsx
+
+import { Stack } from 'expo-router';
+import { AppProvider } from '@/providers/app-provider';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
+import { Provider } from "react-redux";
+import { store } from "./../store";
 
 export default function RootLayout() {
-  return (
-      <Tabs>
-        <Tabs.Screen name="index" options={{ title: "Home" }} />
-        <Tabs.Screen name="booking" options={{ title: "Booking" }} />
-        <Tabs.Screen name="chat" options={{ title: "Chat" }} />
-        <Tabs.Screen name="profile" options={{ title: "Profile" }} />
-      </Tabs>
-  );
+    return (
+        <Provider store={store}>
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                <AppProvider>
+                    <Stack screenOptions={{ headerShown: false }} />
+                </AppProvider>
+            </SafeAreaProvider>
+        </Provider>
+    );
 }
