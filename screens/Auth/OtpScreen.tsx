@@ -9,7 +9,7 @@ import { useSnackbar } from '@/providers/snackbar-provider';
 import { authApi } from '@/services/authApi';
 import OtpInput from '@/components/form/OTP/OtpInput';
 
-const OTP_LENGTH = 4 as const;
+const OTP_LENGTH = 6 as const;
 const RESEND_SECONDS = 30 as const;
 
 export default function OtpScreen(): React.JSX.Element {
