@@ -105,7 +105,7 @@ type TokenPayload = {
     exp: number;
 };
 
-export default function Booking() {
+export default function BookingScreen() {
     const apiURL = process.env.EXPO_PUBLIC_API_BASE_URL;
     const navigation = useNavigation();
     const router = useRouter();
