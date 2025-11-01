@@ -22,43 +22,62 @@ type AuthContextValue = AuthState & {
 const AuthContext = React.createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<AuthState>({ user: null, token: null, loading: true });
+  const [state, setState] = React.useState<AuthState>({
+    user: null,
+    token: null,
+    loading: true,
+  });
   const mountedRef = React.useRef(true);
 
+  // โหลด initial state ครั้งเดียว
   React.useEffect(() => {
     mountedRef.current = true;
     (async () => {
       try {
         const token = await getToken();
         if (!token) {
-          if (mountedRef.current) setState({ user: null, token: null, loading: false });
+          if (mountedRef.current)
+            setState(sameIfEqual(state, { user: null, token: null, loading: false }));
           return;
         }
+
         const verify = await authApi.verifyToken(token);
         if (!verify.ok || !verify.data.valid || !verify.data.id) {
           await clearToken();
-          if (mountedRef.current) setState({ user: null, token: null, loading: false });
+          if (mountedRef.current)
+            setState(sameIfEqual(state, { user: null, token: null, loading: false }));
           return;
         }
+
+        // โหลดโปรไฟล์ (แนะนำให้ปรับ backend /profile เป็น GET ด้วย query ไม่ใส่ body)
         const prof = await authApi.profile(verify.data.id);
+        const nextUser = prof.ok ? (prof.data as UserRow) : null;
+
         if (mountedRef.current) {
-          setState({ user: prof.ok ? (prof.data as UserRow) : null, token, loading: false });
+          setState((prev) =>
+              shallowEqualAuth(prev, { user: nextUser, token, loading: false })
+                  ? prev
+                  : { user: nextUser, token, loading: false }
+          );
         }
       } catch {
         await clearToken();
-        if (mountedRef.current) setState({ user: null, token: null, loading: false });
+        if (mountedRef.current)
+          setState(sameIfEqual(state, { user: null, token: null, loading: false }));
       }
     })();
+
     return () => {
       mountedRef.current = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = React.useCallback(async (account: string, password: string) => {
     try {
       const isEmail = /\S+@\S+\.\S+/.test(account);
       const res = await authApi.login(
-        isEmail ? { email: account, password } : { username: account, password }
+          isEmail ? { email: account, password } : { username: account, password }
       );
       if (!res.ok || !res.data.status || !res.data.token) return false;
 
@@ -71,7 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const prof = await authApi.profile(verify.data.id);
         nextUser = prof.ok ? (prof.data as UserRow) : null;
       }
-      if (mountedRef.current) setState({ user: nextUser, token: newToken, loading: false });
+
+      if (mountedRef.current) {
+        setState({ user: nextUser, token: newToken, loading: false });
+      }
       return true;
     } catch {
       return false;
@@ -80,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = React.useCallback(async () => {
     try {
-      await authApi.logout();
+      await authApi.logout?.(); // เผื่อยังไม่มี endpoint logout
     } finally {
       await clearToken();
       if (mountedRef.current) setState({ user: null, token: null, loading: false });
@@ -92,7 +114,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await authApi.profile(state.user.id);
       if (res.ok && mountedRef.current) {
-        setState((s) => ({ ...s, user: res.data as UserRow }));
+        const nextUser = res.data as UserRow;
+        setState((s) =>
+            shallowEqualAuth(s, { ...s, user: nextUser }) ? s : { ...s, user: nextUser }
+        );
         return true;
       }
     } catch {
@@ -102,22 +127,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.token, state.user?.id]);
 
   const setUser = React.useCallback((user: UserRow | null) => {
-    setState((s) => ({ ...s, user }));
+    setState((s) => (s.user === user ? s : { ...s, user }));
   }, []);
 
   const value = React.useMemo<AuthContextValue>(
-    () => ({
-      ...state,
-      isAuthenticated: !!state.token && !!state.user,
-      login,
-      logout,
-      refreshProfile,
-      setUser,
-    }),
-    [state, login, logout, refreshProfile, setUser]
+      () => ({
+        ...state,
+        isAuthenticated: !!state.token && !!state.user,
+        login,
+        logout,
+        refreshProfile,
+        setUser,
+      }),
+      [state, login, logout, refreshProfile, setUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+function shallowEqualAuth(a: AuthState, b: AuthState) {
+  return a.user === b.user && a.token === b.token && a.loading === b.loading;
+}
+function sameIfEqual(prev: AuthState, next: AuthState): AuthState {
+  return shallowEqualAuth(prev, next) ? prev : next;
 }
 
 export function useAuth(): AuthContextValue {

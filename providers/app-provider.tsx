@@ -28,6 +28,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         icon: (props) => <MaterialCommunityIcons {...props} />,
       }}>
       <SnackbarProvider>
+          {/*{children}*/}
         <AuthProvider>{children}</AuthProvider>
       </SnackbarProvider>
     </PaperProvider>
