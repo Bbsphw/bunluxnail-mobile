@@ -4,6 +4,12 @@ import * as React from 'react';
 import { authApi } from '@/services/authApi';
 import { getToken, setToken, clearToken } from '@/lib/secure-token';
 import type { UserRow } from '@/types/user';
+import { jwtDecode } from 'jwt-decode';
+
+type TokenPayload = {
+  id: number;
+  exp: number;
+};
 
 type AuthState = {
   user: UserRow | null;
@@ -55,9 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (mountedRef.current) {
           setState((prev) =>
-              shallowEqualAuth(prev, { user: nextUser, token, loading: false })
-                  ? prev
-                  : { user: nextUser, token, loading: false }
+            shallowEqualAuth(prev, { user: nextUser, token, loading: false })
+              ? prev
+              : { user: nextUser, token, loading: false }
           );
         }
       } catch {
@@ -77,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const isEmail = /\S+@\S+\.\S+/.test(account);
       const res = await authApi.login(
-          isEmail ? { email: account, password } : { username: account, password }
+        isEmail ? { email: account, password } : { username: account, password }
       );
       if (!res.ok || !res.data.status || !res.data.token) return false;
 
@@ -116,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok && mountedRef.current) {
         const nextUser = res.data as UserRow;
         setState((s) =>
-            shallowEqualAuth(s, { ...s, user: nextUser }) ? s : { ...s, user: nextUser }
+          shallowEqualAuth(s, { ...s, user: nextUser }) ? s : { ...s, user: nextUser }
         );
         return true;
       }
@@ -131,15 +137,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = React.useMemo<AuthContextValue>(
-      () => ({
-        ...state,
-        isAuthenticated: !!state.token && !!state.user,
-        login,
-        logout,
-        refreshProfile,
-        setUser,
-      }),
-      [state, login, logout, refreshProfile, setUser]
+    () => ({
+      ...state,
+      isAuthenticated: !!state.token && !!state.user,
+      login,
+      logout,
+      refreshProfile,
+      setUser,
+    }),
+    [state, login, logout, refreshProfile, setUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -156,4 +162,24 @@ export function useAuth(): AuthContextValue {
   const ctx = React.useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
+}
+
+export function useDecodedToken(): TokenPayload | null {
+  const { token } = useAuth();
+
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode<TokenPayload>(token);
+    return decoded;
+  } catch (err) {
+    console.warn('[useDecodedToken] invalid token', err);
+    return null;
+  }
+
+  // ถ้าอยากตรวจว่าหมดอายุหรือยัง
+  // if (decoded.exp && Date.now() / 1000 > decoded.exp) {
+  //   console.log('⚠️ Token expired');
+  //   return null;
+  // }
 }

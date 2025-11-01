@@ -13,8 +13,14 @@ import { PhoneField } from '@/components/form/PhoneField';
 import { DateField } from '@/components/form/DataField';
 import { useSnackbar } from '@/providers/snackbar-provider';
 import { authApi } from '@/services/authApi';
-import { useAuth } from '@/providers/auth-provider';
+import { useAuth, useDecodedToken } from '@/providers/auth-provider';
 import type { Gender } from '@/types/user';
+import { jwtDecode } from 'jwt-decode';
+
+type TokenPayload = {
+  id: number;
+  exp: number;
+};
 
 const OTP_PATH = '/(auth)/sign-up/otp' as const;
 const GENDERS = ['male', 'female'] as const;
@@ -32,7 +38,8 @@ export default function PersonalDetails(): React.JSX.Element {
   const router = useRouter();
   const params = useLocalSearchParams<{ email?: string }>();
   const { show } = useSnackbar();
-  const { user } = useAuth();
+  // const { token } = useAuth();
+  const decoded = useDecodedToken();
 
   const [genderMenu, setGenderMenu] = React.useState(false);
 
@@ -48,11 +55,22 @@ export default function PersonalDetails(): React.JSX.Element {
     mode: 'onChange',
   });
 
+  // if (!token) {
+  //   console.log('no token');
+  // }
+
+  // let decoded: { id: any; exp?: number };
+  // try {
+  //   decoded = jwtDecode<TokenPayload>(token!);
+  // } catch (err) {
+  //   console.log(err);
+  // }
+
   const onSubmit = async (data: PersonalDetailsForm) => {
-    if (!user?.id) return show('Missing user id', { variant: 'error' });
+    if (!decoded?.id) return show('Missing user id', { variant: 'error' });
 
     const res = await authApi.updateUser({
-      id: user.id,
+      id: decoded.id,
       first_name: data.first_name.trim(),
       last_name: data.last_name.trim(),
       phone: data.phone.trim(),

@@ -17,8 +17,10 @@ export default function Index() {
     const inAuth = segments[0] === '(auth)';
     const inMain = segments[0] === '(main)';
     if (isAuthenticated && !inMain) {
+      console.log("Authorize")
       router.replace('/(main)/(tabs)');
     } else if (!isAuthenticated && !inAuth) {
+      console.log("Not Authorize")
       router.replace('/(auth)/sign-in');
     }
   }, [loading, isAuthenticated, segments, router]);
