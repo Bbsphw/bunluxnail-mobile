@@ -1,16 +1,17 @@
 
-import {ScrollView, Text, View, TouchableOpacity} from "react-native";
+import {ScrollView, Text, View, TouchableOpacity, ActivityIndicator} from "react-native";
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-import { router } from "expo-router";
-import { Avatar, Button, Card, IconButton } from 'react-native-paper';
+
+import { Avatar, Button, Card, IconButton, Divider, Dialog, Portal  } from 'react-native-paper';
 import {useEffect, useState} from "react";
 
 import axios from "axios";
 
 import {jwtDecode} from 'jwt-decode';
 import { useAuth } from '@/providers/auth-provider';
-import {red} from "react-native-reanimated/lib/typescript/Colors";
+
+import { useNavigation, useRouter, router } from "expo-router";
 
 type TokenPayload = {
     id: number;
@@ -34,8 +35,13 @@ export default function ProfileScreen() {
     const apiURL = process.env.EXPO_PUBLIC_API_BASE_URL;
     const { logout, user, token } = useAuth();
     const [data, setData] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [visible, setVisible] = useState(false);
 
-  console.log(token)
+    const router = useRouter();
+
+
+    console.log(token)
     if (!token) {
         console.log('no token');
     }
@@ -63,11 +69,31 @@ export default function ProfileScreen() {
 
             } catch (err) {
                 console.error("Error fetching Services:", err);
+            } finally {
+                setLoading(false)
             }
         };
         fetchServices();
     }, []);
 
+
+    if (loading) {
+        return (
+            <SafeAreaView className="flex-1 bg-white items-center justify-center">
+                <ActivityIndicator/>
+                <Text className="mt-3 text-base text-gray-500">
+                    Loading profile...
+                </Text>
+            </SafeAreaView>
+        );
+    }
+
+    const EditProfile = () => {
+        router.push("/editProfile")
+    }
+
+    const showDialog = () => setVisible(true);
+    const hideDialog = () => setVisible(false);
     // const data = [
     //     {
     //         "id": 7,
@@ -100,7 +126,7 @@ export default function ProfileScreen() {
   };
 
     const EditButton = () => (
-        <Button  mode="contained" buttonColor={"#fb542b"} onPress={() => console.log('Pressed')}     style={{
+        <Button  mode="contained" buttonColor={"#fb542b"} onPress={() => EditProfile()}     style={{
             borderRadius: 25,
             width: "100%",
         }}>
@@ -117,11 +143,20 @@ export default function ProfileScreen() {
         />
     );
 
+    const ResetPassword = () => (
+        <Card.Title
+            title="Reset Password"
+            // subtitle="Card Subtitle"
+            left={(props) => <Avatar.Icon {...props} icon="lock-reset" />}
+            right={(props) => <IconButton {...props} icon="chevron-right"  onPress={() => {handleLogout()}} />}
+        />
+    );
+
     const Logout = () => (
         <Card.Title
             title="Logout"
             // subtitle="Card Subtitle"
-            left={(props) => <Avatar.Icon {...props} icon="history" />}
+            left={(props) => <Avatar.Icon {...props} style={{ backgroundColor: '#C1121F' }} icon="logout" />}
             right={(props) => <IconButton {...props} icon="chevron-right"  onPress={() => {handleLogout()}} />}
         />
     );
@@ -129,9 +164,30 @@ export default function ProfileScreen() {
 
 
 
+    const ResetPasswordDialog = () => {
+        return (
+            <View>
+                <Button onPress={showDialog}>Show Dialog</Button>
+                <Portal>
+                    <Dialog visible={visible} onDismiss={hideDialog}>
+                        <Dialog.Title>Alert</Dialog.Title>
+                        <Dialog.Content>
+                            <Text >This is simple dialog</Text>
+                        </Dialog.Content>
+                        <Dialog.Actions>
+                            <Button onPress={hideDialog}>Done</Button>
+                        </Dialog.Actions>
+                    </Dialog>
+                </Portal>
+            </View>
+        );
+    }
+
   return (
-      <SafeAreaView className="flex-1 px-5" edges={['top']}>
-          <View className="flex-1 items-center justify-center">
+      <SafeAreaView className="flex-1 px-5 bg-white" edges={['top']}>
+          {visible ?  <ResetPasswordDialog /> :
+              <>
+              <View className="flex-1 items-center justify-center">
               <Text className="text-2xl font-bold">My Profile</Text>
           </View>
           <View className="flex-[4] ">
@@ -152,25 +208,14 @@ export default function ProfileScreen() {
           </View>
           <View className="flex-[15]">
               <BookingHistory />
+              <Divider />
+              <ResetPassword />
+              <Divider />
               <Logout />
               {/*<TouchableOpacity className="bg-amber-300 " onPress={handleLogout}>*/}
               {/*  <Text className="text-xl font-bold ">Logout</Text>*/}
               {/*</TouchableOpacity>*/}
-          </View>
-        {/*<View className="flex-1">*/}
-        {/*  <Text className="text-2xl font-bold text-blue-500">*/}
-        {/*    Welcome to Profile!*/}
-        {/*  </Text>*/}
-        {/*  <Text className="text-2xl font-bold text-blue-500">Welcome to from Thailand</Text>*/}
-        {/*</View>*/}
-
-        {/*<View className="flex-1">*/}
-          {/*<TouchableOpacity className="bg-amber-300 flex-1" onPress={handleLogout}>*/}
-          {/*  <Text className="text-xl font-bold ">Logout</Text>*/}
-          {/*</TouchableOpacity>*/}
-        {/*</View>*/}
-
-
+          </View></>}
       </SafeAreaView>
 
 
