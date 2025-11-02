@@ -223,7 +223,7 @@ export default function BookingScreen() {
                               renderItem={({item}) => <RenderServices item={item}/>}/>
                 </View>
                 <View className="flex-[2]">
-                    <TouchableOpacity onPress={handleDisableNextButton} className={totalServices > 0 ? 'bg-secondary_color justify-center items-center py-5 rounded-xl ' : 'bg-secondary_color opacity-50 justify-center items-center py-5 rounded-xl'}>
+                    <TouchableOpacity onPress={handleDisableNextButton} className={totalServices > 0 ? 'bg-[#dda15e] justify-center items-center py-5 rounded-xl ' : 'bg-[#ffe1bf] opacity-50 justify-center items-center py-5 rounded-xl'}>
                         <Text className="font-semibold text-xl text-gray-500">Next (Total Selected {totalServices})</Text>
                     </TouchableOpacity>
                 </View>

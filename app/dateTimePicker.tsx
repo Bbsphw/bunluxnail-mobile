@@ -22,7 +22,11 @@ type TokenPayload = {
 
 export default function DateTimePicker(){
     const apiURL = process.env.EXPO_PUBLIC_API_BASE_URL;
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+    const [selectedDate, setSelectedDate] = useState(new Date(
+        new Date().getTime() + 7 * 60 * 60 * 1000
+    )
+        .toISOString()
+        .split("T")[0]);
     const [selectedTime, setSelectedTime] = useState("");
     const [availableTime, setAvailableTime] = useState([])
     const dispatch = useDispatch();
@@ -70,47 +74,78 @@ export default function DateTimePicker(){
         fetchAvailableTime();
     }, [selectedDate]);
 
-    const handleBookAppointmentButton = () =>{
-        if(selectedDate != '' && selectedTime != ''){
-
-            const addReservation = async () => {
-                try {
-                    const res = await axios.post(`${apiURL}/reservation`, {
-                         user_id : decoded.id, date : selectedDate, period : selectedTime, selected_services_id : selectedServices
+    const handleBookAppointmentButton = () => {
+        if (selectedDate !== "" && selectedTime !== "") {
+            // ⛔ ก่อนเรียก addReservation ให้ถามยืนยันก่อน
+            Alert.alert(
+                "Confirmation",
+                `Are you sure to booking on  ${selectedDate} Time ${selectedTime}`,
+                [
+                    {
+                        text: "cancel",
+                        style: "cancel",
                     },
-                        {
-                            headers:{
-                                Authorization: `Bearer ${token}`,
-                            }
-                        });
+                    {
+                        text: "confirm",
+                        onPress: () => {
+                            // ✅ เมื่อกดตกลง ค่อยเรียก addReservation
+                            const addReservation = async () => {
+                                try {
+                                    const res = await axios.post(
+                                        `${apiURL}/reservation`,
+                                        {
+                                            user_id: decoded.id,
+                                            date: selectedDate,
+                                            period: selectedTime,
+                                            selected_services_id: selectedServices,
+                                        },
+                                        {
+                                            headers: {
+                                                Authorization: `Bearer ${token}`,
+                                            },
+                                        }
+                                    );
 
-                    if (res.data.status === true) {
-                        Alert.alert("✅ Reservation Successful", "Your appointment has been booked.", [
-                            {
-                                text: "OK",
-                                onPress: () => {
-                                    setSelectedTime("");
-                                    router.back();
-                                    router.back();
-
-
-                                    // navigation.setOptions({tabBarStyle: {display: "flex"}});
-                                },
-                            },
-                        ]);
-                        dispatch(resetServices());
-                    } else {
-                        Alert.alert("❌ Reservation Failed", res.data.message || "Please try again later.");
-                    }
-                    console.log(res.data)
-
-                } catch (err) {
-                    console.error("Error fetching chat:", err);
-                }
-            };
-            addReservation();
+                                    if (res.data.status === true) {
+                                        Alert.alert(
+                                            "✅ Reservation Successful",
+                                            "Your appointment has been booked.\n\n📍 Please be on time.\n⏰ If you are more than 15 minutes late, your booking will be canceled.",
+                                            [
+                                                {
+                                                    text: "OK",
+                                                    onPress: () => {
+                                                        setSelectedTime("");
+                                                        router.back();
+                                                        router.back();
+                                                    },
+                                                },
+                                            ]
+                                        );
+                                        dispatch(resetServices());
+                                    } else {
+                                        Alert.alert("❌ Reservation Failed", res.data.message || "Please try again later.");
+                                    }
+                                    console.log(res.data);
+                                } catch (err) {
+                                    console.error("Error fetching chat:", err);
+                                    Alert.alert("❌ Error", "An unexpected error occurred.");
+                                }
+                            };
+                            addReservation();
+                        },
+                    },
+                ]
+            );
+        } else {
+            Alert.alert("กรุณาเลือกวันและเวลาให้ครบก่อนจอง");
         }
-    }
+    };
+
+    const todayInBangkok = new Date(
+        new Date().getTime() + 7 * 60 * 60 * 1000
+    )
+        .toISOString()
+        .split("T")[0];
 
     return (
         <SafeAreaView className="flex-1 bg-white" edges={['top']}>
@@ -139,11 +174,12 @@ export default function DateTimePicker(){
                 <View className="flex-[17]">
                     <View className="flex-[10]">
                         <CalendarList
+                            minDate={todayInBangkok}
                             onDayPress={(day) => setSelectedDate(day.dateString)}
                             markedDates={{
                                 [selectedDate]: {
                                     selected: true,
-                                    selectedColor: "#C61CFB",
+                                    selectedColor: "#dda15e",
                                 },
                             }}
                             pastScrollRange={0}
@@ -173,7 +209,7 @@ export default function DateTimePicker(){
                                         paddingHorizontal: 15,
                                         borderRadius: 10,
                                         margin: 5,
-                                        backgroundColor: selectedTime === time ? "#C61CFB" : "#F2F2F2",
+                                        backgroundColor: selectedTime === time ? "#dda15e" : "#F2F2F2",
                                         alignItems : 'center',
                                         justifyContent: 'center'
                                     }}
@@ -192,7 +228,7 @@ export default function DateTimePicker(){
                         </ScrollView>
                     </View>
                     <View className="flex-[2] justify-center">
-                        <TouchableOpacity onPress={handleBookAppointmentButton} className="bg-secondary_color justify-center items-center py-5 rounded-xl ' : 'bg-secondary_color opacity-50 justify-center items-center py-5 rounded-xl">
+                        <TouchableOpacity onPress={handleBookAppointmentButton} className="bg-[#dda15e] justify-center items-center py-5 rounded-xl ' : 'bg-secondary_color opacity-50 justify-center items-center py-5 rounded-xl">
                             <Text className="font-semibold text-xl text-gray-500">Book Appointment</Text>
                         </TouchableOpacity>
                     </View>
