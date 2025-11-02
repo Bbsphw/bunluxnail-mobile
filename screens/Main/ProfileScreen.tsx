@@ -89,7 +89,19 @@ export default function ProfileScreen() {
     }
 
     const EditProfile = () => {
-        router.push("/editProfile")
+        router.push({
+            pathname: "/editProfile",
+            params: {
+                id: data?.id,
+                first_name: data?.first_name,
+                last_name: data?.last_name,
+                email: data?.email,
+                username : data?.username,
+                phone : data?.phone,
+                gender : data?.gender,
+                picture_base64 : data?.picture_base64
+            },
+        });
     }
 
     const showDialog = () => setVisible(true);
@@ -148,7 +160,7 @@ export default function ProfileScreen() {
             title="Reset Password"
             // subtitle="Card Subtitle"
             left={(props) => <Avatar.Icon {...props} icon="lock-reset" />}
-            right={(props) => <IconButton {...props} icon="chevron-right"  onPress={() => {handleLogout()}} />}
+            right={(props) => <IconButton {...props} icon="chevron-right"  onPress={() => {handleLogout}} />}
         />
     );
 
