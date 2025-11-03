@@ -1,8 +1,6 @@
 // app/(main)/_layout.tsx
 
-import * as React from 'react';
 import { Stack } from 'expo-router';
-
-export default function MainLayout(): React.JSX.Element {
+export default function MainLayout() {
   return <Stack screenOptions={{ headerShown: false }} />;
 }

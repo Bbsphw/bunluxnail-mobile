@@ -12,11 +12,13 @@ const theme: MD3Theme = {
   roundness: Platform.select({ ios: 12, android: 10, default: 10 }) ?? 10,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#4B352A', // primary_color
-    background: '#E4E0E1', // background_color
-    secondary: '#D6C0B3', // secondary_color
-    onSurface: '#5E503F', // text_default_color
-    outline: '#D6C0B3',
+    primary: '#4B352A',
+    background: '#EFEDEE', // สว่างขึ้น อ่านง่าย
+    surface: '#FFFFFF', // การ์ดขาว เด่นชัด
+    onSurface: '#4A3D34',
+    onSurfaceVariant: '#6F6156', // ตัวหนังสือ/ไอคอนรอง
+    outline: '#E2D6CD',
+    secondaryContainer: '#F5EFEA', // ใช้แทนพื้นม่วงอ่อนยาวๆ
   },
 };
 
@@ -28,6 +30,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         icon: (props) => <MaterialCommunityIcons {...props} />,
       }}>
       <SnackbarProvider>
+        {/*{children}*/}
         <AuthProvider>{children}</AuthProvider>
       </SnackbarProvider>
     </PaperProvider>
