@@ -613,7 +613,7 @@ const SALON = {
   phone: '080-053-6270',
   rating: 4.8,
   reviews: 214,
-  hours: '10:00–20:00 (ทุกวัน)',
+  hours: '18:30–00:30 (หยุดวันอาทิตย์)',
 } as const;
 
 const CAROUSEL = [
@@ -760,7 +760,10 @@ export default function HomeScreen(): React.JSX.Element {
   return (
     <SafeAreaView className="bg-background_color flex-1">
       {/* ใช้ ScrollView + padding แนวนอนคงที่ เพื่อจัด rhythm ของหน้าให้เนียน */}
-      <ScrollView contentContainerStyle={{ paddingBottom: 120 }} className="flex-1" showsVerticalScrollIndicator={false} >
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120 }}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}>
         {/* 1) Welcome (บนสุด, มีแอนิเมชันจาก WelcomeBanner) */}
         <WelcomeBanner title={greeting} subtitle="Feel gorgeous, everyday." />
 
